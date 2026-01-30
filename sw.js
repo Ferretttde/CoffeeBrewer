@@ -1,10 +1,10 @@
-const CACHE_NAME = 'brewtracker-v1';
+const CACHE_NAME = 'brewtracker-v2';
 const ASSETS = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    '/icons/icon-192.png',
-    '/icons/icon-512.png',
+    './',
+    './index.html',
+    './manifest.json',
+    './icons/icon-192.png',
+    './icons/icon-512.png',
     'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 
@@ -51,7 +51,7 @@ self.addEventListener('fetch', event => {
             .catch(() => {
                 // Return offline fallback for navigation requests
                 if (event.request.mode === 'navigate') {
-                    return caches.match('/index.html');
+                    return caches.match('./index.html');
                 }
             })
     );
