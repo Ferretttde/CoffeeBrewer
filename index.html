@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="de">
-    <!-- Redeploy -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -446,54 +445,25 @@
         }
 
         /* Dashboard Styles */
-        .controls {
+        .variable-selector {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
             flex-wrap: wrap;
-        }
-
-        .period-selector {
-            display: flex;
             gap: 10px;
+            margin-bottom: 25px;
+            justify-content: center;
         }
 
-        .period-selector .btn {
-            padding: 12px 25px;
+        .variable-selector .btn {
+            padding: 10px 16px;
+            font-size: 0.95em;
             font-weight: 600;
-            box-shadow: 0 4px 8px rgba(107, 68, 35, 0.3);
+            box-shadow: 0 3px 6px rgba(107, 68, 35, 0.25);
         }
 
-        .period-selector .btn.active {
+        .variable-selector .btn.active {
             background: #6B4423;
             color: white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .btn-arrow {
-            padding: 12px 20px;
-            font-size: 18px;
-        }
-
-        .period-info {
-            background: #FDFAF5;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #3E2723;
-            border: 2px solid #D4A574;
-            min-width: 250px;
-            text-align: center;
-        }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .chart-container {
@@ -502,6 +472,7 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(107, 68, 35, 0.2);
             border: 2px solid #D4A574;
+            margin-bottom: 20px;
         }
 
         .chart-title {
@@ -511,6 +482,105 @@
             font-weight: 700;
             border-bottom: 2px solid #E8D5B7;
             padding-bottom: 10px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #A67C52;
+            color: #F5EDE0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #8B5A3C;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #FDFAF5;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #D4A574;
+            text-align: center;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.85em;
+            color: #8B6F47;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #3E2723;
+        }
+
+        .stat-card .stat-value .stars {
+            font-size: 1em;
+        }
+
+        .drill-down-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .drill-down-title {
+            font-size: 1.5em;
+            color: #3E2723;
+            font-weight: 700;
+        }
+
+        .drill-down-entries {
+            margin-top: 20px;
+        }
+
+        .drill-down-entries h3 {
+            color: #3E2723;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            border-bottom: 2px solid #E8D5B7;
+            padding-bottom: 10px;
+        }
+
+        .common-factors {
+            background: #F5EDE0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #8B5A3C;
+        }
+
+        .common-factors h4 {
+            color: #3E2723;
+            margin-bottom: 10px;
+        }
+
+        .common-factors ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .common-factors li {
+            padding: 5px 0;
+            color: #5A3A1F;
         }
 
         .loading {
@@ -567,17 +637,17 @@
                 font-size: 1.8em;
             }
 
-            .controls {
-                flex-direction: column;
+            .variable-selector {
+                gap: 8px;
             }
 
-            .period-info {
-                min-width: auto;
-                width: 100%;
+            .variable-selector .btn {
+                padding: 8px 12px;
+                font-size: 0.85em;
             }
 
-            .charts-grid {
-                grid-template-columns: 1fr;
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .entries-header {
@@ -710,39 +780,42 @@
 
             <!-- Dashboard View -->
             <div class="view" id="dashboardView">
-                <div class="controls">
-                    <button class="btn btn-arrow" onclick="navigatePeriod(-1)">←</button>
-
-                    <div class="period-selector">
-                        <button class="btn active" id="btnWeek" onclick="changePeriodType('week')">Woche</button>
-                        <button class="btn" id="btnMonth" onclick="changePeriodType('month')">Monat</button>
-                        <button class="btn" id="btnYear" onclick="changePeriodType('year')">Jahr</button>
-                    </div>
-
-                    <button class="btn btn-arrow" onclick="navigatePeriod(1)">→</button>
+                <div class="variable-selector" id="variableSelector">
+                    <button class="btn active" data-variable="coffee_name" onclick="selectVariable('coffee_name')">Kaffee Name</button>
+                    <button class="btn" data-variable="taste" onclick="selectVariable('taste')">Geschmack</button>
+                    <button class="btn" data-variable="grind_size" onclick="selectVariable('grind_size')">Mahlgrad</button>
+                    <button class="btn" data-variable="water_amount" onclick="selectVariable('water_amount')">Wassermenge</button>
+                    <button class="btn" data-variable="coffee_amount" onclick="selectVariable('coffee_amount')">Kaffeemenge</button>
+                    <button class="btn" data-variable="water_temp" onclick="selectVariable('water_temp')">Temperatur</button>
+                    <button class="btn" data-variable="is_french_press" onclick="selectVariable('is_french_press')">French Press</button>
                 </div>
-
-                <div class="period-info" id="periodInfo"></div>
 
                 <div id="loading" class="loading" style="display: none;">Lade Daten...</div>
                 <div id="dashboardError" class="error-message" style="display: none;"></div>
 
-                <div id="charts">
-                    <div class="charts-grid">
-                        <div class="chart-container">
-                            <div class="chart-title">Einträge pro Tag</div>
-                            <canvas id="entriesChart"></canvas>
-                        </div>
+                <!-- Aggregated Bar Chart View -->
+                <div id="chartView">
+                    <div class="chart-container">
+                        <div class="chart-title" id="chartTitle">Einträge pro Kaffee Name</div>
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
 
-                        <div class="chart-container">
-                            <div class="chart-title">Wassermenge pro Tag (ml)</div>
-                            <canvas id="waterChart"></canvas>
-                        </div>
+                <!-- Drill-Down Detail View -->
+                <div id="drillDownView" style="display: none;">
+                    <button class="back-btn" onclick="showChartView()">← Zurück zur Übersicht</button>
+
+                    <div class="drill-down-header">
+                        <h2 class="drill-down-title" id="drillDownTitle"></h2>
                     </div>
 
-                    <div class="chart-container">
-                        <div class="chart-title">Kaffeemenge pro Kaffeesorte (g)</div>
-                        <canvas id="coffeeChart"></canvas>
+                    <div class="stats-grid" id="statsGrid"></div>
+
+                    <div id="commonFactors" class="common-factors" style="display: none;"></div>
+
+                    <div class="drill-down-entries">
+                        <h3 id="entriesHeading">Einträge</h3>
+                        <div class="entries-list" id="drillDownEntries"></div>
                     </div>
                 </div>
             </div>
@@ -946,10 +1019,10 @@
         // Global State
         // ============================================
         const brewDB = new BrewDB();
-        let entriesChart, waterChart, coffeeChart;
-        let currentPeriodType = 'week';
-        let currentOffset = 0;
+        let mainChart = null;
+        let currentVariable = 'coffee_name';
         let currentView = 'logger';
+        let allBrews = [];
 
         // ============================================
         // View Switching
@@ -1264,113 +1337,46 @@
         // ============================================
         // Dashboard Functions
         // ============================================
-        function getDateRange(periodType, offset) {
-            const now = new Date();
-            let start = new Date();
-            let end = new Date();
+        const variableLabels = {
+            coffee_name: 'Kaffee Name',
+            taste: 'Geschmack',
+            grind_size: 'Mahlgrad',
+            water_amount: 'Wassermenge',
+            coffee_amount: 'Kaffeemenge',
+            water_temp: 'Temperatur',
+            is_french_press: 'French Press'
+        };
 
-            if (periodType === 'week') {
-                const day = now.getDay();
-                const diff = day === 0 ? 6 : day - 1;
-                start.setDate(now.getDate() - diff - (offset * 7));
-                start.setHours(0, 0, 0, 0);
+        function selectVariable(variable) {
+            currentVariable = variable;
 
-                end = new Date(start);
-                end.setDate(start.getDate() + 6);
-                end.setHours(23, 59, 59, 999);
-            } else if (periodType === 'month') {
-                start = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-                start.setHours(0, 0, 0, 0);
+            // Update button states
+            document.querySelectorAll('.variable-selector .btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.variable === variable);
+            });
 
-                end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
-                end.setHours(23, 59, 59, 999);
-            } else if (periodType === 'year') {
-                start = new Date(now.getFullYear() - offset, 0, 1);
-                start.setHours(0, 0, 0, 0);
-
-                end = new Date(start.getFullYear(), 11, 31);
-                end.setHours(23, 59, 59, 999);
-            }
-
-            return { start, end };
-        }
-
-        function formatPeriodInfo(periodType, offset) {
-            const { start, end } = getDateRange(periodType, offset);
-
-            const formatDate = (date) => {
-                const day = date.getDate().toString().padStart(2, '0');
-                const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                const year = date.getFullYear();
-                return `${day}.${month}.${year}`;
-            };
-
-            if (periodType === 'week') {
-                return `Woche: ${formatDate(start)} - ${formatDate(end)}`;
-            } else if (periodType === 'month') {
-                const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-                                   'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
-                return `${monthNames[start.getMonth()]} ${start.getFullYear()}`;
-            } else if (periodType === 'year') {
-                return `Jahr ${start.getFullYear()}`;
-            }
-        }
-
-        function getWeekNumber(date) {
-            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-            const dayNum = d.getUTCDay() || 7;
-            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-        }
-
-        function getMonday(date) {
-            const d = new Date(date);
-            const day = d.getDay();
-            const diff = day === 0 ? -6 : 1 - day;
-            d.setDate(d.getDate() + diff);
-            d.setHours(0, 0, 0, 0);
-            return d;
-        }
-
-        function changePeriodType(periodType) {
-            currentPeriodType = periodType;
-            currentOffset = 0;
-
-            document.querySelectorAll('.period-selector .btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn' + periodType.charAt(0).toUpperCase() + periodType.slice(1)).classList.add('active');
-
-            loadDashboardData();
-        }
-
-        function navigatePeriod(direction) {
-            currentOffset -= direction;
-            loadDashboardData();
+            loadVariableData();
         }
 
         async function loadDashboardData() {
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('charts').style.display = 'none';
+            document.getElementById('chartView').style.display = 'none';
+            document.getElementById('drillDownView').style.display = 'none';
             document.getElementById('dashboardError').style.display = 'none';
 
-            const periodInfo = formatPeriodInfo(currentPeriodType, currentOffset);
-            document.getElementById('periodInfo').textContent = periodInfo;
-
             try {
-                const { start, end } = getDateRange(currentPeriodType, currentOffset);
-                const data = await brewDB.getBrewsInRange(start, end);
+                allBrews = await brewDB.getAllBrews('created_at', false);
 
-                if (!data || data.length === 0) {
-                    document.getElementById('dashboardError').textContent = 'Keine Daten für diesen Zeitraum gefunden.';
+                if (!allBrews || allBrews.length === 0) {
+                    document.getElementById('dashboardError').textContent = 'Keine Daten vorhanden.';
                     document.getElementById('dashboardError').style.display = 'block';
                     document.getElementById('loading').style.display = 'none';
                     return;
                 }
 
-                processData(data);
-
+                loadVariableData();
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('charts').style.display = 'block';
+                document.getElementById('chartView').style.display = 'block';
 
             } catch (error) {
                 console.error('Error:', error);
@@ -1380,218 +1386,328 @@
             }
         }
 
-        function processData(data) {
-            if (currentPeriodType === 'week') {
-                processWeekData(data);
-            } else if (currentPeriodType === 'month') {
-                processMonthData(data);
-            } else if (currentPeriodType === 'year') {
-                processYearData(data);
+        function loadVariableData() {
+            const aggregated = {};
+
+            if (currentVariable === 'is_french_press') {
+                // For French Press, show coffee names where FP=true
+                allBrews.forEach(brew => {
+                    if (brew.is_french_press) {
+                        const key = brew.coffee_name || 'Unbekannt';
+                        aggregated[key] = (aggregated[key] || 0) + 1;
+                    }
+                });
+            } else {
+                allBrews.forEach(brew => {
+                    let key = brew[currentVariable];
+                    if (currentVariable === 'taste') {
+                        key = key + ' ★';
+                    } else if (key === undefined || key === null) {
+                        key = 'Unbekannt';
+                    }
+                    aggregated[key] = (aggregated[key] || 0) + 1;
+                });
             }
+
+            // Sort by count descending
+            const sorted = Object.entries(aggregated).sort((a, b) => b[1] - a[1]);
+            const labels = sorted.map(item => String(item[0]));
+            const counts = sorted.map(item => item[1]);
+
+            // Update chart title
+            const titleEl = document.getElementById('chartTitle');
+            if (currentVariable === 'is_french_press') {
+                titleEl.textContent = 'French Press Einträge pro Kaffee';
+            } else {
+                titleEl.textContent = `Einträge pro ${variableLabels[currentVariable]}`;
+            }
+
+            updateMainChart(labels, counts);
         }
 
-        function processWeekData(data) {
-            const entriesByDate = {};
-            const waterByDate = {};
-            const coffeeByName = {};
+        function updateMainChart(labels, data) {
+            if (mainChart) mainChart.destroy();
 
-            data.forEach(item => {
-                const date = item.created_at.split('T')[0];
-
-                entriesByDate[date] = (entriesByDate[date] || 0) + 1;
-                waterByDate[date] = (waterByDate[date] || 0) + (item.water_amount || 0);
-
-                if (item.coffee_name) {
-                    coffeeByName[item.coffee_name] = (coffeeByName[item.coffee_name] || 0) + (item.coffee_amount || 0);
-                }
-            });
-
-            const dates = Object.keys(entriesByDate).sort();
-            const dateLabels = dates.map(d => {
-                const date = new Date(d);
-                return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-            });
-            const entriesData = dates.map(date => entriesByDate[date]);
-            const waterData = dates.map(date => waterByDate[date]);
-
-            const coffeeNames = Object.keys(coffeeByName).sort();
-            const coffeeData = coffeeNames.map(name => coffeeByName[name]);
-
-            updateCharts(dateLabels, entriesData, waterData, coffeeNames, coffeeData);
-        }
-
-        function processMonthData(data) {
-            const entriesByWeek = {};
-            const waterByWeek = {};
-            const coffeeByName = {};
-            const weekCounts = {};
-
-            data.forEach(item => {
-                const date = new Date(item.created_at);
-                const monday = getMonday(date);
-                const weekKey = monday.toISOString().split('T')[0];
-
-                entriesByWeek[weekKey] = (entriesByWeek[weekKey] || 0) + 1;
-                waterByWeek[weekKey] = (waterByWeek[weekKey] || 0) + (item.water_amount || 0);
-                weekCounts[weekKey] = (weekCounts[weekKey] || new Set()).add(date.toISOString().split('T')[0]);
-
-                if (item.coffee_name) {
-                    coffeeByName[item.coffee_name] = (coffeeByName[item.coffee_name] || 0) + (item.coffee_amount || 0);
-                }
-            });
-
-            const weeks = Object.keys(entriesByWeek).sort();
-            const weekLabels = weeks.map(w => {
-                const date = new Date(w);
-                return `KW ${getWeekNumber(date)}`;
-            });
-
-            const entriesData = weeks.map(week => {
-                const daysInWeek = weekCounts[week].size;
-                return Math.round((entriesByWeek[week] / daysInWeek) * 10) / 10;
-            });
-
-            const waterData = weeks.map(week => {
-                const daysInWeek = weekCounts[week].size;
-                return Math.round((waterByWeek[week] / daysInWeek) * 10) / 10;
-            });
-
-            const coffeeNames = Object.keys(coffeeByName).sort();
-            const coffeeData = coffeeNames.map(name => coffeeByName[name]);
-
-            updateCharts(weekLabels, entriesData, waterData, coffeeNames, coffeeData);
-        }
-
-        function processYearData(data) {
-            const entriesByMonth = {};
-            const waterByMonth = {};
-            const coffeeByName = {};
-            const monthCounts = {};
-
-            data.forEach(item => {
-                const date = new Date(item.created_at);
-                const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-
-                entriesByMonth[monthKey] = (entriesByMonth[monthKey] || 0) + 1;
-                waterByMonth[monthKey] = (waterByMonth[monthKey] || 0) + (item.water_amount || 0);
-                monthCounts[monthKey] = (monthCounts[monthKey] || new Set()).add(date.toISOString().split('T')[0]);
-
-                if (item.coffee_name) {
-                    coffeeByName[item.coffee_name] = (coffeeByName[item.coffee_name] || 0) + (item.coffee_amount || 0);
-                }
-            });
-
-            const months = Object.keys(entriesByMonth).sort();
-            const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-            const monthLabels = months.map(m => {
-                const monthNum = parseInt(m.split('-')[1]) - 1;
-                return monthNames[monthNum];
-            });
-
-            const entriesData = months.map(month => {
-                const daysInMonth = monthCounts[month].size;
-                return Math.round((entriesByMonth[month] / daysInMonth) * 10) / 10;
-            });
-
-            const waterData = months.map(month => {
-                const daysInMonth = monthCounts[month].size;
-                return Math.round((waterByMonth[month] / daysInMonth) * 10) / 10;
-            });
-
-            const coffeeNames = Object.keys(coffeeByName).sort();
-            const coffeeData = coffeeNames.map(name => coffeeByName[name]);
-
-            updateCharts(monthLabels, entriesData, waterData, coffeeNames, coffeeData);
-        }
-
-        function updateCharts(dateLabels, entriesData, waterData, coffeeNames, coffeeData) {
-            if (entriesChart) entriesChart.destroy();
-            if (waterChart) waterChart.destroy();
-            if (coffeeChart) coffeeChart.destroy();
-
-            const color1 = 'rgba(139, 90, 60, 0.8)';
-            const border1 = 'rgba(139, 90, 60, 1)';
-            const color2 = 'rgba(166, 124, 82, 0.8)';
-            const border2 = 'rgba(166, 124, 82, 1)';
-            const color3 = 'rgba(107, 68, 35, 0.8)';
-            const border3 = 'rgba(107, 68, 35, 1)';
-
-            const labelSuffix = currentPeriodType === 'week' ? '' : ' (Ø)';
-
-            const ctx1 = document.getElementById('entriesChart').getContext('2d');
-            entriesChart = new Chart(ctx1, {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            mainChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: dateLabels,
+                    labels: labels,
                     datasets: [{
-                        label: 'Anzahl Einträge' + labelSuffix,
-                        data: entriesData,
-                        backgroundColor: color1,
-                        borderColor: border1,
+                        label: 'Anzahl Einträge',
+                        data: data,
+                        backgroundColor: 'rgba(139, 90, 60, 0.8)',
+                        borderColor: 'rgba(139, 90, 60, 1)',
                         borderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
+                    indexAxis: 'y',
+                    onClick: (event, elements, chart) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const clickedLabel = chart.data.labels[index];
+                            showDrillDown(clickedLabel, index);
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.parsed.x} Einträge`
+                            }
+                        }
+                    },
                     scales: {
-                        y: {
+                        x: {
                             beginAtZero: true,
                             ticks: {
-                                stepSize: currentPeriodType === 'week' ? 1 : 0.5
+                                stepSize: 1
                             }
                         }
                     }
                 }
             });
+        }
 
-            const ctx2 = document.getElementById('waterChart').getContext('2d');
-            waterChart = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: dateLabels,
-                    datasets: [{
-                        label: 'Wassermenge (ml)' + labelSuffix,
-                        data: waterData,
-                        backgroundColor: color2,
-                        borderColor: border2,
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+        function showDrillDown(value, index) {
+            // Filter entries based on variable type
+            let entries;
+            if (currentVariable === 'is_french_press') {
+                entries = allBrews.filter(b => b.is_french_press && b.coffee_name === value);
+            } else if (currentVariable === 'taste') {
+                const filterValue = parseInt(value.replace(' ★', ''));
+                entries = allBrews.filter(b => b.taste === filterValue);
+            } else if (['grind_size', 'water_amount', 'coffee_amount', 'water_temp'].includes(currentVariable)) {
+                // Use loose equality to handle number/string type differences
+                const numValue = parseFloat(value);
+                entries = allBrews.filter(b => b[currentVariable] == numValue);
+            } else {
+                entries = allBrews.filter(b => b[currentVariable] === value);
+            }
+
+            // Sort entries based on variable type
+            if (currentVariable === 'coffee_name' || currentVariable === 'is_french_press') {
+                entries.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            } else {
+                entries.sort((a, b) => (a.coffee_name || '').localeCompare(b.coffee_name || ''));
+            }
+
+            // Update title
+            document.getElementById('drillDownTitle').textContent =
+                currentVariable === 'is_french_press'
+                    ? `French Press: ${value}`
+                    : `${variableLabels[currentVariable]}: ${value}`;
+
+            // Calculate and display stats
+            const stats = calculateStats(entries);
+            displayStats(stats);
+
+            // Show common factors for taste drill-down
+            const commonFactorsEl = document.getElementById('commonFactors');
+            if (currentVariable === 'taste') {
+                const factors = calculateCommonFactors(entries);
+                displayCommonFactors(factors);
+                commonFactorsEl.style.display = 'block';
+            } else {
+                commonFactorsEl.style.display = 'none';
+            }
+
+            // Update entries heading
+            const entriesHeading = document.getElementById('entriesHeading');
+            if (currentVariable === 'coffee_name' || currentVariable === 'is_french_press') {
+                entriesHeading.textContent = `Einträge (${entries.length}) - sortiert nach Datum`;
+            } else {
+                entriesHeading.textContent = `Einträge (${entries.length}) - sortiert nach Kaffee Name`;
+            }
+
+            // Display entries
+            renderDrillDownEntries(entries);
+
+            // Switch views
+            document.getElementById('chartView').style.display = 'none';
+            document.getElementById('variableSelector').style.display = 'none';
+            document.getElementById('drillDownView').style.display = 'block';
+        }
+
+        function showChartView() {
+            document.getElementById('drillDownView').style.display = 'none';
+            document.getElementById('variableSelector').style.display = 'flex';
+            document.getElementById('chartView').style.display = 'block';
+        }
+
+        function calculateStats(entries) {
+            if (entries.length === 0) {
+                return null;
+            }
+
+            const sum = (arr) => arr.reduce((a, b) => a + b, 0);
+            const avg = (arr) => arr.length > 0 ? sum(arr) / arr.length : 0;
+
+            const tastes = entries.map(e => e.taste).filter(t => t != null);
+            const grindSizes = entries.map(e => e.grind_size).filter(g => g != null);
+            const waterAmounts = entries.map(e => e.water_amount).filter(w => w != null);
+            const coffeeAmounts = entries.map(e => e.coffee_amount).filter(c => c != null);
+            const waterTemps = entries.map(e => e.water_temp).filter(t => t != null);
+            const dates = entries.map(e => new Date(e.created_at)).sort((a, b) => a - b);
+
+            return {
+                totalEntries: entries.length,
+                avgTaste: avg(tastes),
+                avgGrindSize: avg(grindSizes),
+                avgWaterAmount: avg(waterAmounts),
+                avgCoffeeAmount: avg(coffeeAmounts),
+                avgWaterTemp: avg(waterTemps),
+                firstDate: dates[0],
+                lastDate: dates[dates.length - 1]
+            };
+        }
+
+        function displayStats(stats) {
+            const container = document.getElementById('statsGrid');
+            if (!stats) {
+                container.innerHTML = '<p>Keine Statistiken verfügbar.</p>';
+                return;
+            }
+
+            const formatDate = (date) => {
+                if (!date) return '-';
+                return date.toLocaleDateString('de-DE');
+            };
+
+            const starsHtml = (rating) => {
+                const fullStars = Math.round(rating);
+                return '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+            };
+
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-label">Einträge</div>
+                    <div class="stat-value">${stats.totalEntries}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Ø Geschmack</div>
+                    <div class="stat-value"><span class="stars">${starsHtml(stats.avgTaste)}</span> (${stats.avgTaste.toFixed(1)})</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Ø Mahlgrad</div>
+                    <div class="stat-value">${stats.avgGrindSize.toFixed(1)}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Ø Wassermenge</div>
+                    <div class="stat-value">${Math.round(stats.avgWaterAmount)} ml</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Ø Kaffeemenge</div>
+                    <div class="stat-value">${stats.avgCoffeeAmount.toFixed(1)} g</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Ø Temperatur</div>
+                    <div class="stat-value">${Math.round(stats.avgWaterTemp)} °C</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Erster Eintrag</div>
+                    <div class="stat-value">${formatDate(stats.firstDate)}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Letzter Eintrag</div>
+                    <div class="stat-value">${formatDate(stats.lastDate)}</div>
+                </div>
+            `;
+        }
+
+        function calculateCommonFactors(entries) {
+            // Count coffee names
+            const coffeeCounts = {};
+            entries.forEach(e => {
+                const name = e.coffee_name || 'Unbekannt';
+                coffeeCounts[name] = (coffeeCounts[name] || 0) + 1;
             });
 
-            const ctx3 = document.getElementById('coffeeChart').getContext('2d');
-            coffeeChart = new Chart(ctx3, {
-                type: 'bar',
-                data: {
-                    labels: coffeeNames,
-                    datasets: [{
-                        label: 'Kaffeemenge (g)',
-                        data: coffeeData,
-                        backgroundColor: color3,
-                        borderColor: border3,
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    indexAxis: 'y'
-                }
+            // Sort by count and take top 3
+            const topCoffees = Object.entries(coffeeCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([name, count]) => `${name} (${count}×)`);
+
+            // Calculate averages
+            const avgGrind = entries.reduce((sum, e) => sum + (e.grind_size || 0), 0) / entries.length;
+            const avgWater = entries.reduce((sum, e) => sum + (e.water_amount || 0), 0) / entries.length;
+            const avgTemp = entries.reduce((sum, e) => sum + (e.water_temp || 0), 0) / entries.length;
+
+            return {
+                topCoffees,
+                avgGrind: avgGrind.toFixed(1),
+                avgWater: Math.round(avgWater),
+                avgTemp: Math.round(avgTemp)
+            };
+        }
+
+        function displayCommonFactors(factors) {
+            const container = document.getElementById('commonFactors');
+            container.innerHTML = `
+                <h4>Häufige Faktoren bei dieser Bewertung</h4>
+                <ul>
+                    <li><strong>Top Kaffeesorten:</strong> ${factors.topCoffees.join(', ') || 'Keine'}</li>
+                    <li><strong>Ø Mahlgrad:</strong> ${factors.avgGrind}</li>
+                    <li><strong>Ø Wassermenge:</strong> ${factors.avgWater} ml</li>
+                    <li><strong>Ø Temperatur:</strong> ${factors.avgTemp} °C</li>
+                </ul>
+            `;
+        }
+
+        function renderDrillDownEntries(entries) {
+            const container = document.getElementById('drillDownEntries');
+            container.innerHTML = '';
+
+            if (entries.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6B4423; padding: 30px;">Keine Einträge gefunden.</p>';
+                return;
+            }
+
+            entries.forEach(entry => {
+                const card = document.createElement('div');
+                card.className = 'entry-card';
+                const stars = '★'.repeat(entry.taste) + '☆'.repeat(5 - entry.taste);
+                const date = new Date(entry.created_at).toLocaleDateString('de-DE');
+
+                const sequencesHTML = (entry.brew_sequences || []).map((seq, index) => `
+                    <div class="sequence-item">
+                        <span class="sequence-number">${index + 1}.</span>
+                        <span class="sequence-detail">${seq.water}g Wasser</span>
+                        <span class="sequence-detail">${seq.wait}s warten</span>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="entry-header" onclick="toggleEntry(this)">
+                        <div>
+                            <div class="entry-title">${entry.coffee_name}</div>
+                            <div class="entry-date">${date}</div>
+                        </div>
+                        <div class="stars">${stars}</div>
+                        <div class="stars">${entry.water_amount}ml</div>
+                    </div>
+                    <div class="entry-content">
+                        <div class="entry-details">
+                            <div class="entry-detail"><strong>Mahlgrad:</strong> ${entry.grind_size}</div>
+                            <div class="entry-detail"><strong>Kaffee:</strong> ${entry.coffee_amount}g</div>
+                            <div class="entry-detail"><strong>Wasser:</strong> ${entry.water_amount}ml</div>
+                            <div class="entry-detail"><strong>Temperatur:</strong> ${entry.water_temp}°C</div>
+                            <div class="entry-detail"><strong>Zeit:</strong> ${entry.brew_time}</div>
+                            <div class="entry-detail"><strong>Methode:</strong> ${entry.is_french_press ? 'French Press' : 'Pour Over'}</div>
+                        </div>
+                        ${sequencesHTML ? `
+                        <div class="brew-sequences-display">
+                            <strong>Brühsequenzen:</strong>
+                            <div class="sequences-list">${sequencesHTML}</div>
+                        </div>
+                        ` : ''}
+                        ${entry.notes ? `<p><strong>Notizen:</strong> ${entry.notes}</p>` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
             });
         }
 
