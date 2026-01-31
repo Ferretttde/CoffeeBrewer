@@ -475,6 +475,10 @@
             margin-bottom: 20px;
         }
 
+        .chart-container canvas {
+            min-height: 300px;
+        }
+
         .chart-title {
             font-size: 1.3em;
             color: #3E2723;
@@ -648,6 +652,10 @@
 
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-container canvas {
+                min-height: 400px;
             }
 
             .entries-header {
@@ -1428,7 +1436,14 @@
         function updateMainChart(labels, data) {
             if (mainChart) mainChart.destroy();
 
-            const ctx = document.getElementById('mainChart').getContext('2d');
+            // Calculate dynamic height based on number of bars (min 40px per bar, min 300px total)
+            const barHeight = 45;
+            const minHeight = 300;
+            const calculatedHeight = Math.max(minHeight, labels.length * barHeight);
+            const canvas = document.getElementById('mainChart');
+            canvas.style.height = calculatedHeight + 'px';
+
+            const ctx = canvas.getContext('2d');
             mainChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -1443,7 +1458,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     indexAxis: 'y',
                     onClick: (event, elements, chart) => {
                         if (elements.length > 0) {
@@ -1457,13 +1472,30 @@
                             callbacks: {
                                 label: (context) => `${context.parsed.x} Einträge`
                             }
+                        },
+                        legend: {
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
                         }
                     },
                     scales: {
                         x: {
                             beginAtZero: true,
                             ticks: {
-                                stepSize: 1
+                                stepSize: 1,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                font: {
+                                    size: 13
+                                }
                             }
                         }
                     }
