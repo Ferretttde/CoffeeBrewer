@@ -466,22 +466,59 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        .chart-container {
-            background: #FDFAF5;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(107, 68, 35, 0.2);
-            border: 2px solid #D4A574;
-            margin-bottom: 20px;
-        }
-
-        .chart-title {
+        .tiles-title {
             font-size: 1.3em;
             color: #3E2723;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             font-weight: 700;
             border-bottom: 2px solid #E8D5B7;
             padding-bottom: 10px;
+        }
+
+        .tiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .tile {
+            background: #FDFAF5;
+            border: 2px solid #D4A574;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .tile:hover {
+            border-color: #8B5A3C;
+            box-shadow: 0 4px 12px rgba(107, 68, 35, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .tile:active {
+            transform: translateY(0);
+        }
+
+        .tile-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #3E2723;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .tile-count {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #8B5A3C;
+        }
+
+        .tile-label {
+            font-size: 0.8em;
+            color: #8B6F47;
+            margin-top: 2px;
         }
 
         .back-btn {
@@ -793,12 +830,10 @@
                 <div id="loading" class="loading" style="display: none;">Lade Daten...</div>
                 <div id="dashboardError" class="error-message" style="display: none;"></div>
 
-                <!-- Aggregated Bar Chart View -->
+                <!-- Aggregated Tiles View -->
                 <div id="chartView">
-                    <div class="chart-container">
-                        <div class="chart-title" id="chartTitle">Einträge pro Kaffee Name</div>
-                        <canvas id="mainChart"></canvas>
-                    </div>
+                    <h2 class="tiles-title" id="tilesTitle">Einträge pro Kaffee Name</h2>
+                    <div class="tiles-grid" id="tilesGrid"></div>
                 </div>
 
                 <!-- Drill-Down Detail View -->
@@ -1019,7 +1054,6 @@
         // Global State
         // ============================================
         const brewDB = new BrewDB();
-        let mainChart = null;
         let currentVariable = 'coffee_name';
         let currentView = 'logger';
         let allBrews = [];
@@ -1411,92 +1445,38 @@
 
             // Sort by count descending
             const sorted = Object.entries(aggregated).sort((a, b) => b[1] - a[1]);
-            const labels = sorted.map(item => String(item[0]));
-            const counts = sorted.map(item => item[1]);
 
-            // Update chart title
-            const titleEl = document.getElementById('chartTitle');
+            // Update title
+            const titleEl = document.getElementById('tilesTitle');
             if (currentVariable === 'is_french_press') {
                 titleEl.textContent = 'French Press Einträge pro Kaffee';
             } else {
                 titleEl.textContent = `Einträge pro ${variableLabels[currentVariable]}`;
             }
 
-            updateMainChart(labels, counts);
+            renderTiles(sorted);
         }
 
-        function updateMainChart(labels, data) {
-            if (mainChart) mainChart.destroy();
+        function renderTiles(data) {
+            const container = document.getElementById('tilesGrid');
+            container.innerHTML = '';
 
-            const isMobile = window.innerWidth <= 768;
-            const barThickness = isMobile ? 16 : 20;
+            data.forEach(([value, count]) => {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.onclick = () => showDrillDown(String(value));
 
-            const canvas = document.getElementById('mainChart');
-            canvas.style.height = '';  // Clear any inline height
+                tile.innerHTML = `
+                    <div class="tile-value">${value}</div>
+                    <div class="tile-count">${count}</div>
+                    <div class="tile-label">Einträge</div>
+                `;
 
-            const ctx = canvas.getContext('2d');
-            mainChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Anzahl Einträge',
-                        data: data,
-                        backgroundColor: 'rgba(139, 90, 60, 0.8)',
-                        borderColor: 'rgba(139, 90, 60, 1)',
-                        borderWidth: 2,
-                        barThickness: barThickness
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: isMobile ? 1.2 : 2,
-                    indexAxis: 'y',
-                    onClick: (event, elements, chart) => {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            const clickedLabel = chart.data.labels[index];
-                            showDrillDown(clickedLabel, index);
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: (context) => `${context.parsed.x} Einträge`
-                            }
-                        },
-                        legend: {
-                            labels: {
-                                font: {
-                                    size: 14
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1,
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        y: {
-                            ticks: {
-                                font: {
-                                    size: 13
-                                }
-                            }
-                        }
-                    }
-                }
+                container.appendChild(tile);
             });
         }
 
-        function showDrillDown(value, index) {
+        function showDrillDown(value) {
             // Filter entries based on variable type
             let entries;
             if (currentVariable === 'is_french_press') {
