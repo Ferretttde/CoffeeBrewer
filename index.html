@@ -1428,13 +1428,13 @@
         function updateMainChart(labels, data) {
             if (mainChart) mainChart.destroy();
 
-            // Calculate dynamic height based on number of bars
-            const barHeight = 30;
-            const minHeight = 250;
-            const maxHeight = 500;
-            const calculatedHeight = Math.min(maxHeight, Math.max(minHeight, labels.length * barHeight));
+            // Set static height based on number of bars (25px per bar on mobile)
+            const isMobile = window.innerWidth <= 768;
+            const barHeight = isMobile ? 25 : 30;
+            const padding = 60; // Space for title and axis
+            const chartHeight = labels.length * barHeight + padding;
             const canvas = document.getElementById('mainChart');
-            canvas.style.height = calculatedHeight + 'px';
+            canvas.style.height = chartHeight + 'px';
 
             const ctx = canvas.getContext('2d');
             mainChart = new Chart(ctx, {
