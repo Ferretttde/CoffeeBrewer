@@ -340,6 +340,20 @@
             align-items: start;
             margin-bottom: 15px;
             cursor: pointer;
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 0;
+            font-family: inherit;
+            font-size: inherit;
+            text-align: left;
+            color: inherit;
+        }
+
+        .entry-header:focus-visible {
+            outline: 2px solid #8B5A3C;
+            outline-offset: 4px;
+            border-radius: 4px;
         }
 
         .entry-header:hover .entry-title {
@@ -1051,6 +1065,19 @@
         }
 
         // ============================================
+        // HTML Escaping (XSS Prevention)
+        // ============================================
+        function escapeHTML(str) {
+            if (str == null) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ============================================
         // Global State
         // ============================================
         const brewDB = new BrewDB();
@@ -1094,6 +1121,7 @@
         function addBrewSequence() {
             const container = document.getElementById('brewSequences');
             const index = container.children.length;
+            const isFirst = index === 0;
             const div = document.createElement('div');
             div.className = 'brew-sequence';
             div.innerHTML = `
@@ -1103,12 +1131,12 @@
                 </div>
                 <div class="brew-sequence-inputs">
                     <div>
-                        <label>Wassermenge (g):</label>
-                        <input type="number" class="seq-water" step="0.1" required>
+                        <label>Zeit (mm:ss):</label>
+                        <input type="text" class="seq-time" value="${isFirst ? '00:00' : ''}" ${isFirst ? 'readonly' : ''} placeholder="mm:ss" pattern="[0-9]{1,2}:[0-9]{2}" required>
                     </div>
                     <div>
-                        <label>Wartezeit (s):</label>
-                        <input type="number" class="seq-wait" required>
+                        <label>Wassermenge (ml, gesamt):</label>
+                        <input type="number" class="seq-water" step="1" required>
                     </div>
                 </div>
             `;
@@ -1124,6 +1152,13 @@
             const sequences = document.querySelectorAll('.brew-sequence');
             sequences.forEach((seq, index) => {
                 seq.querySelector('strong').textContent = `Sequenz ${index + 1}`;
+                const timeInput = seq.querySelector('.seq-time');
+                if (index === 0) {
+                    timeInput.value = '00:00';
+                    timeInput.readOnly = true;
+                } else {
+                    timeInput.readOnly = false;
+                }
             });
         }
 
@@ -1133,8 +1168,8 @@
             const sequences = [];
             document.querySelectorAll('.brew-sequence').forEach(seq => {
                 sequences.push({
-                    water: parseFloat(seq.querySelector('.seq-water').value),
-                    wait: parseInt(seq.querySelector('.seq-wait').value)
+                    time: seq.querySelector('.seq-time').value,
+                    water: parseFloat(seq.querySelector('.seq-water').value)
                 });
             });
 
@@ -1205,31 +1240,24 @@
                 card.className = 'entry-card';
                 const stars = '★'.repeat(entry.taste) + '☆'.repeat(5 - entry.taste);
                 const date = new Date(entry.created_at).toLocaleDateString('de-DE');
-
-                const sequencesHTML = (entry.brew_sequences || []).map((seq, index) => `
-                    <div class="sequence-item">
-                        <span class="sequence-number">${index + 1}.</span>
-                        <span class="sequence-detail">${seq.water}g Wasser</span>
-                        <span class="sequence-detail">${seq.wait}s warten</span>
-                    </div>
-                `).join('');
+                const sequencesHTML = formatSequencesHTML(entry.brew_sequences);
 
                 card.innerHTML = `
-                    <div class="entry-header" onclick="toggleEntry(this)">
+                    <button type="button" class="entry-header" aria-expanded="false" onclick="toggleEntry(this)">
                         <div>
-                            <div class="entry-title">${entry.coffee_name}</div>
+                            <div class="entry-title">${escapeHTML(entry.coffee_name)}</div>
                             <div class="entry-date">${date}</div>
                         </div>
                         <div class="stars">${stars}</div>
                         <div class="stars">${entry.water_amount}ml</div>
-                    </div>
+                    </button>
                     <div class="entry-content">
                         <div class="entry-details">
                             <div class="entry-detail"><strong>Mahlgrad:</strong> ${entry.grind_size}</div>
                             <div class="entry-detail"><strong>Kaffee:</strong> ${entry.coffee_amount}g</div>
                             <div class="entry-detail"><strong>Wasser:</strong> ${entry.water_amount}ml</div>
                             <div class="entry-detail"><strong>Temperatur:</strong> ${entry.water_temp}°C</div>
-                            <div class="entry-detail"><strong>Zeit:</strong> ${entry.brew_time}</div>
+                            <div class="entry-detail"><strong>Zeit:</strong> ${escapeHTML(entry.brew_time)}</div>
                             <div class="entry-detail"><strong>Methode:</strong> ${entry.is_french_press ? 'French Press' : 'Pour Over'}</div>
                         </div>
                         ${sequencesHTML ? `
@@ -1238,7 +1266,7 @@
                             <div class="sequences-list">${sequencesHTML}</div>
                         </div>
                         ` : ''}
-                        ${entry.notes ? `<p><strong>Notizen:</strong> ${entry.notes}</p>` : ''}
+                        ${entry.notes ? `<p><strong>Notizen:</strong> ${escapeHTML(entry.notes)}</p>` : ''}
                         <div class="entry-actions">
                             <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); editEntry(${entry.id})">Bearbeiten</button>
                             <button class="btn btn-danger btn-small" onclick="event.stopPropagation(); deleteEntry(${entry.id})">Löschen</button>
@@ -1253,7 +1281,7 @@
             try {
                 const names = await brewDB.getUniqueCoffeeNames();
                 const datalist = document.getElementById('coffeeNamesList');
-                datalist.innerHTML = names.map(name => `<option value="${name}">`).join('');
+                datalist.innerHTML = names.map(name => `<option value="${escapeHTML(name)}">`).join('');
             } catch (error) {
                 console.error('Fehler beim Laden der Kaffeenamen:', error);
             }
@@ -1278,8 +1306,8 @@
                 (data.brew_sequences || []).forEach(seq => {
                     addBrewSequence();
                     const lastSeq = document.querySelector('.brew-sequence:last-child');
+                    lastSeq.querySelector('.seq-time').value = seq.time;
                     lastSeq.querySelector('.seq-water').value = seq.water;
-                    lastSeq.querySelector('.seq-wait').value = seq.wait;
                 });
 
                 document.getElementById('formContainer').classList.add('active');
@@ -1299,9 +1327,64 @@
             }
         }
 
+        function formatSequencesHTML(sequences) {
+            if (!sequences || sequences.length === 0) return '';
+            return sequences.map((seq, index) => {
+                const prevWater = index > 0 ? sequences[index - 1].water : 0;
+                const delta = seq.water - prevWater;
+                const deltaLabel = index === 0
+                    ? `${seq.water} ml`
+                    : `${seq.water} ml (+${delta} ml)`;
+                return `
+                    <div class="sequence-item">
+                        <span class="sequence-number">${index + 1}.</span>
+                        <span class="sequence-detail">${escapeHTML(seq.time)}</span>
+                        <span class="sequence-detail">${deltaLabel}</span>
+                    </div>`;
+            }).join('');
+        }
+
+        // Migrate old-format sequences {water (incremental), wait (seconds)}
+        // to new format {time (mm:ss cumulative), water (ml cumulative)}
+        function migrateOldSequences(sequences) {
+            if (!sequences || sequences.length === 0) return sequences;
+            // Detect old format: has 'wait' property
+            if (sequences[0].wait === undefined && sequences[0].time !== undefined) {
+                return sequences; // already new format
+            }
+            let cumulativeSeconds = 0;
+            let cumulativeWater = 0;
+            return sequences.map((seq, index) => {
+                if (index > 0) {
+                    // Previous sequence's wait becomes this sequence's timestamp
+                    cumulativeSeconds += (sequences[index - 1].wait || 0);
+                }
+                cumulativeWater += (seq.water || 0);
+                const mins = Math.floor(cumulativeSeconds / 60);
+                const secs = cumulativeSeconds % 60;
+                return {
+                    time: `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`,
+                    water: cumulativeWater
+                };
+            });
+        }
+
+        async function migrateAllBrews() {
+            const allBrews = await brewDB.getAllBrews();
+            for (const brew of allBrews) {
+                if (!brew.brew_sequences || brew.brew_sequences.length === 0) continue;
+                // Check if any sequence has old 'wait' field
+                if (brew.brew_sequences[0].wait !== undefined) {
+                    brew.brew_sequences = migrateOldSequences(brew.brew_sequences);
+                    await brewDB.updateBrew(brew.id, brew);
+                }
+            }
+        }
+
         function toggleEntry(header) {
             const content = header.nextElementSibling;
-            content.classList.toggle('expanded');
+            const expanded = content.classList.toggle('expanded');
+            header.setAttribute('aria-expanded', expanded);
         }
 
         function cancelEdit() {
@@ -1334,9 +1417,75 @@
             }
         }
 
+        function validateBrewImport(brew, index) {
+            const label = `Eintrag ${index + 1}`;
+            const requiredFields = ['coffee_name', 'grind_size', 'coffee_amount', 'water_amount', 'water_temp', 'brew_time', 'taste'];
+            for (const field of requiredFields) {
+                if (brew[field] === undefined || brew[field] === null) {
+                    throw new Error(`${label}: Fehlendes Pflichtfeld "${field}".`);
+                }
+            }
+            if (typeof brew.coffee_name !== 'string' || brew.coffee_name.trim() === '') {
+                throw new Error(`${label}: "coffee_name" muss ein nicht-leerer Text sein.`);
+            }
+            if (typeof brew.grind_size !== 'number' || brew.grind_size < 0) {
+                throw new Error(`${label}: "grind_size" muss eine positive Zahl sein.`);
+            }
+            if (typeof brew.coffee_amount !== 'number' || brew.coffee_amount <= 0) {
+                throw new Error(`${label}: "coffee_amount" muss eine positive Zahl sein.`);
+            }
+            if (typeof brew.water_amount !== 'number' || brew.water_amount <= 0) {
+                throw new Error(`${label}: "water_amount" muss eine positive Zahl sein.`);
+            }
+            if (typeof brew.water_temp !== 'number' || brew.water_temp < 0 || brew.water_temp > 120) {
+                throw new Error(`${label}: "water_temp" muss zwischen 0 und 120 °C liegen.`);
+            }
+            if (typeof brew.brew_time !== 'string' || !/^[0-9]{1,2}:[0-9]{2}$/.test(brew.brew_time)) {
+                throw new Error(`${label}: "brew_time" muss im Format "mm:ss" sein.`);
+            }
+            if (!Number.isInteger(brew.taste) || brew.taste < 1 || brew.taste > 5) {
+                throw new Error(`${label}: "taste" muss eine ganze Zahl von 1 bis 5 sein.`);
+            }
+            if (brew.brew_sequences !== undefined) {
+                if (!Array.isArray(brew.brew_sequences)) {
+                    throw new Error(`${label}: "brew_sequences" muss ein Array sein.`);
+                }
+                for (const seq of brew.brew_sequences) {
+                    if (typeof seq.water !== 'number' || seq.water <= 0) {
+                        throw new Error(`${label}: Brühsequenz-Wassermenge muss eine positive Zahl sein.`);
+                    }
+                    // Accept both old format (wait) and new format (time)
+                    const isOldFormat = seq.wait !== undefined;
+                    const isNewFormat = seq.time !== undefined;
+                    if (!isOldFormat && !isNewFormat) {
+                        throw new Error(`${label}: Brühsequenz muss "time" (mm:ss) oder "wait" (Sekunden) enthalten.`);
+                    }
+                    if (isOldFormat && (typeof seq.wait !== 'number' || seq.wait < 0)) {
+                        throw new Error(`${label}: Brühsequenz-Wartezeit muss eine nicht-negative Zahl sein.`);
+                    }
+                    if (isNewFormat && (typeof seq.time !== 'string' || !/^[0-9]{1,2}:[0-9]{2}$/.test(seq.time))) {
+                        throw new Error(`${label}: Brühsequenz-Zeit muss im Format "mm:ss" sein.`);
+                    }
+                }
+            }
+            if (brew.notes !== undefined && typeof brew.notes !== 'string') {
+                throw new Error(`${label}: "notes" muss ein Text sein.`);
+            }
+            if (brew.is_french_press !== undefined && typeof brew.is_french_press !== 'boolean') {
+                throw new Error(`${label}: "is_french_press" muss true oder false sein.`);
+            }
+        }
+
         async function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+            if (file.size > MAX_FILE_SIZE) {
+                alert('Die Datei ist zu groß (max. 10 MB).');
+                event.target.value = '';
+                return;
+            }
 
             try {
                 const text = await file.text();
@@ -1346,15 +1495,15 @@
                     throw new Error('Ungültiges Datenformat. Erwartet: Array von Braueinträgen.');
                 }
 
-                // Validate data structure
-                const requiredFields = ['coffee_name', 'grind_size', 'coffee_amount', 'water_amount', 'water_temp', 'brew_time', 'taste'];
-                for (const brew of data) {
-                    for (const field of requiredFields) {
-                        if (brew[field] === undefined) {
-                            throw new Error(`Fehlende Pflichtfeld: ${field}`);
-                        }
+                // Validate data structure and types
+                data.forEach((brew, index) => validateBrewImport(brew, index));
+
+                // Migrate old-format sequences on import
+                data.forEach(brew => {
+                    if (brew.brew_sequences) {
+                        brew.brew_sequences = migrateOldSequences(brew.brew_sequences);
                     }
-                }
+                });
 
                 const replace = confirm('Möchtest du alle bestehenden Daten ersetzen?\n\nOK = Ersetzen\nAbbrechen = Hinzufügen');
                 const count = await brewDB.importBrews(data, replace);
@@ -1467,7 +1616,7 @@
                 tile.onclick = () => showDrillDown(String(value));
 
                 tile.innerHTML = `
-                    <div class="tile-value">${value}</div>
+                    <div class="tile-value">${escapeHTML(value)}</div>
                     <div class="tile-count">${count}</div>
                     <div class="tile-label">Einträge</div>
                 `;
@@ -1502,8 +1651,8 @@
             // Update title
             document.getElementById('drillDownTitle').textContent =
                 currentVariable === 'is_french_press'
-                    ? `French Press: ${value}`
-                    : `${variableLabels[currentVariable]}: ${value}`;
+                    ? 'French Press: ' + value
+                    : variableLabels[currentVariable] + ': ' + value;
 
             // Calculate and display stats
             const stats = calculateStats(entries);
@@ -1634,7 +1783,7 @@
             const topCoffees = Object.entries(coffeeCounts)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 3)
-                .map(([name, count]) => `${name} (${count}×)`);
+                .map(([name, count]) => `${escapeHTML(name)} (${count}×)`);
 
             // Calculate averages
             const avgGrind = entries.reduce((sum, e) => sum + (e.grind_size || 0), 0) / entries.length;
@@ -1676,31 +1825,24 @@
                 card.className = 'entry-card';
                 const stars = '★'.repeat(entry.taste) + '☆'.repeat(5 - entry.taste);
                 const date = new Date(entry.created_at).toLocaleDateString('de-DE');
-
-                const sequencesHTML = (entry.brew_sequences || []).map((seq, index) => `
-                    <div class="sequence-item">
-                        <span class="sequence-number">${index + 1}.</span>
-                        <span class="sequence-detail">${seq.water}g Wasser</span>
-                        <span class="sequence-detail">${seq.wait}s warten</span>
-                    </div>
-                `).join('');
+                const sequencesHTML = formatSequencesHTML(entry.brew_sequences);
 
                 card.innerHTML = `
-                    <div class="entry-header" onclick="toggleEntry(this)">
+                    <button type="button" class="entry-header" aria-expanded="false" onclick="toggleEntry(this)">
                         <div>
-                            <div class="entry-title">${entry.coffee_name}</div>
+                            <div class="entry-title">${escapeHTML(entry.coffee_name)}</div>
                             <div class="entry-date">${date}</div>
                         </div>
                         <div class="stars">${stars}</div>
                         <div class="stars">${entry.water_amount}ml</div>
-                    </div>
+                    </button>
                     <div class="entry-content">
                         <div class="entry-details">
                             <div class="entry-detail"><strong>Mahlgrad:</strong> ${entry.grind_size}</div>
                             <div class="entry-detail"><strong>Kaffee:</strong> ${entry.coffee_amount}g</div>
                             <div class="entry-detail"><strong>Wasser:</strong> ${entry.water_amount}ml</div>
                             <div class="entry-detail"><strong>Temperatur:</strong> ${entry.water_temp}°C</div>
-                            <div class="entry-detail"><strong>Zeit:</strong> ${entry.brew_time}</div>
+                            <div class="entry-detail"><strong>Zeit:</strong> ${escapeHTML(entry.brew_time)}</div>
                             <div class="entry-detail"><strong>Methode:</strong> ${entry.is_french_press ? 'French Press' : 'Pour Over'}</div>
                         </div>
                         ${sequencesHTML ? `
@@ -1709,7 +1851,7 @@
                             <div class="sequences-list">${sequencesHTML}</div>
                         </div>
                         ` : ''}
-                        ${entry.notes ? `<p><strong>Notizen:</strong> ${entry.notes}</p>` : ''}
+                        ${entry.notes ? `<p><strong>Notizen:</strong> ${escapeHTML(entry.notes)}</p>` : ''}
                     </div>
                 `;
                 container.appendChild(card);
@@ -1735,6 +1877,7 @@
         window.onload = async function() {
             try {
                 await brewDB.init();
+                await migrateAllBrews();
                 loadEntries();
                 loadCoffeeNames();
                 addBrewSequence();
